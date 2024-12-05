@@ -1,7 +1,9 @@
 <script setup>
 import {useRouter} from "vue-router";
+import {useAuthStore} from "@/stores/auth.js";
 
-const router = useRouter()
+const router = useRouter();
+const authStore = useAuthStore();
 </script>
 
 <template>
@@ -9,16 +11,19 @@ const router = useRouter()
     <v-app-bar :elevation="2" class="px-4">
 
       <RouterLink class="text-decoration-none text-white" to="/">
-        <v-app-bar-title>Колесо Удачи Элит Трейд</v-app-bar-title>
+        <v-app-bar-title>Крути барабан</v-app-bar-title>
       </RouterLink>
 
-      <template v-slot:append>
+      <template
+        v-if="authStore.getAuthToken()"
+        v-slot:append
+      >
         <v-btn
-          append-icon="mdi-login"
+          prepend-icon="mdi-account"
           variant="outlined"
-          @click="router.push('/login')"
+          @click="router.push('/admin/clients')"
         >
-          Войти
+          Админ панель
         </v-btn>
       </template>
     </v-app-bar>

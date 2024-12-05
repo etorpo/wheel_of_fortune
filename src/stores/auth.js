@@ -14,8 +14,10 @@ export const useAuthStore = defineStore('auth', () =>{
     }
 
     const response = await axiosInst.post('/login', request);
-    localStorage.setItem('access_token', response.data.token);
-    await router.push('/');
+    if (response.data.token) {
+      localStorage.setItem('access_token', response.data.token);
+      window.location.reload();
+    }
   }
 
   return {

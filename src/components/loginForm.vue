@@ -18,7 +18,7 @@ const onSubmit = () => {
   setTimeout(() => {
     useAuth.login(email.value, password.value);
     loading.value = false
-  }, 2000)
+  }, 450)
 }
 
 const required = (v) => {
