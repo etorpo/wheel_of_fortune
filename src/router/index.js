@@ -6,12 +6,11 @@
 
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto'
-import { routes } from 'vue-router/auto-routes'
 import {useAuthStore} from "@/stores/auth.js";
 import Home from "@/pages/Home.vue";
 import Login from "@/pages/login.vue";
-import Clients from "@/pages/admin/Clients.vue";
 import Sectors from "@/pages/admin/Sectors.vue";
+import Players from "@/pages/admin/Players.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,7 +28,7 @@ const router = createRouter({
     {
       path: '/admin/clients',
       name: 'clients',
-      component: Clients,
+      component: Players,
     },
     {
       path: '/admin/sectors',

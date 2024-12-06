@@ -1,186 +1,84 @@
 <script setup>
 import {ref, reactive, computed, watch, onMounted} from 'vue'
+import {usePlayersStore} from "@/stores/players.js";
+import {useCityStore} from "@/stores/city.js";
+const playersStore = usePlayersStore();
+const citiesStore = useCityStore();
 
 const dialog = ref(false)
-const dialogDelete = ref(false)
 
 const props = defineProps({
   title: String,
   headers: Array,
   items: Array,
+  itemsPerPage: Number
 })
 
-const
-headers = [
-  {
-    title: 'ID',
-    align: 'start',
-    key: 'name',
-  },
-  {title: 'Имя', key: 'calories'},
-  {title: 'Номер билета', key: 'fat'},
-  {title: 'Город', key: 'carbs'},
-  {title: 'Номер сектора', key: 'protein'},
-  {title: 'Приз', key: 'actions', sortable: false},
-]
-
-const desserts = ref([])
 const editedIndex = ref(-1)
+
 const editedItem = reactive({
+  id: '',
   name: '',
-  calories: 0,
-  fat: 0,
-  carbs: 0,
-  protein: 0,
+  ticket_code: '',
+  city: null,
 })
-const defaultItem = {
+
+const newItem = reactive({
   name: '',
-  calories: 0,
-  fat: 0,
-  carbs: 0,
-  protein: 0,
-}
+  ticket_code: '',
+  city: null,
+});
 
 const formTitle = computed(() => {
-  return editedIndex.value === -1 ? 'New Item' : 'Edit Item'
+  return editedIndex.value === -1 ? 'Добавить' : 'Редактировать'
+})
+
+const itemsTransform = computed(() => {
+  return props.items?.map((item) => {
+    return {
+      id: item.id,
+      name: item.name,
+      ticket_code: item.ticket_code,
+      city: item.city.name,
+      group_id: item.group_id,
+      product_name: item.product_name
+    }
+  })
 })
 
 watch(dialog, (val) => {
   if (!val) close()
 })
 
-watch(dialogDelete, (val) => {
-  if (!val) closeDelete()
-})
-
-onMounted(() => {
-  initialize()
-})
-
-function initialize() {
-  desserts.value = [
-    {
-      name: 'Frozen Yogurt',
-      calories: 159,
-      fat: 6.0,
-      carbs: 24,
-      protein: 4.0,
-    },
-    {
-      name: 'Ice cream sandwich',
-      calories: 237,
-      fat: 9.0,
-      carbs: 37,
-      protein: 4.3,
-    },
-    {
-      name: 'Eclair',
-      calories: 262,
-      fat: 16.0,
-      carbs: 23,
-      protein: 6.0,
-    },
-    {
-      name: 'Cupcake',
-      calories: 305,
-      fat: 3.7,
-      carbs: 67,
-      protein: 4.3,
-    },
-    {
-      name: 'Gingerbread',
-      calories: 356,
-      fat: 16.0,
-      carbs: 49,
-      protein: 3.9,
-    },
-    {
-      name: 'Jelly bean',
-      calories: 375,
-      fat: 0.0,
-      carbs: 94,
-      protein: 0.0,
-    },
-    {
-      name: 'Lollipop',
-      calories: 392,
-      fat: 0.2,
-      carbs: 98,
-      protein: 0,
-    },
-    {
-      name: 'Honeycomb',
-      calories: 408,
-      fat: 3.2,
-      carbs: 87,
-      protein: 6.5,
-    },
-    {
-      name: 'Donut',
-      calories: 452,
-      fat: 25.0,
-      carbs: 51,
-      protein: 4.9,
-    },
-    {
-      name: 'KitKat',
-      calories: 518,
-      fat: 26.0,
-      carbs: 65,
-      protein: 7,
-    },
-  ]
-}
-
-function editItem(item) {
-  editedIndex.value = desserts.value.indexOf(item)
-  Object.assign(editedItem, item)
-  dialog.value = true
-}
-
-function deleteItem(item) {
-  editedIndex.value = desserts.value.indexOf(item)
-  Object.assign(editedItem, item)
-  dialogDelete.value = true
-}
-
-function deleteItemConfirm() {
-  desserts.value.splice(editedIndex.value, 1)
-  closeDelete()
+function editItem(id) {
+  const item = props.items.find((item) => item.id === id);
+  editedIndex.value = 1;
+  Object.assign(editedItem, item);
+  dialog.value = true;
 }
 
 function close() {
   dialog.value = false
-  nextTick(() => {
-    Object.assign(editedItem, defaultItem)
-    editedIndex.value = -1
-  })
+  editedIndex.value = -1;
 }
 
-function closeDelete() {
-  dialogDelete.value = false
-  nextTick(() => {
-    Object.assign(editedItem, defaultItem)
-    editedIndex.value = -1
-  })
-}
-
-function save() {
-  if (editedIndex.value > -1) {
-    Object.assign(desserts.value[editedIndex.value], editedItem)
+const save = async () => {
+  if (editedIndex.value === -1) {
+    await playersStore.addPlayer(newItem.name, newItem.ticket_code, newItem.city);
   } else {
-    desserts.value.push({...editedItem})
+    await playersStore.editPlayer(editedItem.id, editedItem.name, editedItem.ticket_code, editedItem.city.id);
   }
-  close()
+  close();
+  await playersStore.getPlayers();
 }
 </script>
 
 <template>
   <v-data-table
-    class="pt-4"
     :headers="headers"
-    :items="desserts"
+    :items="itemsTransform"
     :sort-by="[{ key: 'calories', order: 'asc' }]"
+    :items-per-page="itemsPerPage"
   >
     <template v-slot:top>
       <v-toolbar
@@ -193,18 +91,29 @@ function save() {
           vertical
         ></v-divider>
         <v-spacer></v-spacer>
+        <v-btn
+          @click="playersStore.downloadExcelFile()"
+          class="mb-2"
+          color="white"
+          variant="outlined"
+          dark
+          v-bind="props"
+        >
+          Скачать Excel
+        </v-btn>
         <v-dialog
           v-model="dialog"
           max-width="500px"
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              class="mb-2"
+              class="mb-2 ml-5"
               color="primary"
+              variant="outlined"
               dark
               v-bind="props"
             >
-              New Item
+              Добавить
             </v-btn>
           </template>
           <v-card>
@@ -213,89 +122,71 @@ function save() {
             </v-card-title>
 
             <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    md="4"
-                    sm="6"
-                  >
-                    <v-text-field
-                      v-model="editedItem.name"
-                      label="Dessert name"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    md="4"
-                    sm="6"
-                  >
-                    <v-text-field
-                      v-model="editedItem.calories"
-                      label="Calories"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    md="4"
-                    sm="6"
-                  >
-                    <v-text-field
-                      v-model="editedItem.fat"
-                      label="Fat (g)"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    md="4"
-                    sm="6"
-                  >
-                    <v-text-field
-                      v-model="editedItem.carbs"
-                      label="Carbs (g)"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    md="4"
-                    sm="6"
-                  >
-                    <v-text-field
-                      v-model="editedItem.protein"
-                      label="Protein (g)"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
+
+              <v-container v-if="editedIndex !== -1">
+
+                <v-text-field
+                  v-model="editedItem.name"
+                  label="Имя"
+                  variant="outlined"
+                ></v-text-field>
+
+                <v-text-field
+                  v-model="editedItem.ticket_code"
+                  label="Билет"
+                  variant="outlined"
+                ></v-text-field>
+                <v-autocomplete
+                  class="wheel-players"
+                  v-model="editedItem.city.id"
+                  label="Город"
+                  :items="citiesStore.cities"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-magnify"
+                >
+                </v-autocomplete>
               </v-container>
+
+              <v-container v-else>
+                <v-text-field
+                  v-model="newItem.name"
+                  label="Имя"
+                  variant="outlined"
+                ></v-text-field>
+                <v-text-field
+                  v-model="newItem.ticket_code"
+                  label="Билет"
+                  variant="outlined"
+                ></v-text-field>
+                <v-autocomplete
+                  class="wheel-players"
+                  v-model="newItem.city"
+                  label="Город"
+                  :items="citiesStore.cities"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-magnify"
+                >
+                </v-autocomplete>
+              </v-container>
+
             </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
                 color="blue-darken-1"
-                variant="text"
+                variant="outlined"
                 @click="close"
               >
-                Cancel
+                Отменить
               </v-btn>
               <v-btn
                 color="blue-darken-1"
-                variant="text"
+                variant="outlined"
                 @click="save"
               >
-                Save
+                Сохранить
               </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -305,24 +196,13 @@ function save() {
       <v-icon
         class="me-2"
         size="small"
-        @click="editItem(item)"
+        @click="editItem(item.id)"
       >
         mdi-pencil
       </v-icon>
-      <v-icon
-        size="small"
-        @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn
-        color="primary"
-        @click="initialize"
-      >
-        Reset
-      </v-btn>
+      <v-progress-circular class="my-10" indeterminate size="100" width="10" />
     </template>
   </v-data-table>
 </template>
