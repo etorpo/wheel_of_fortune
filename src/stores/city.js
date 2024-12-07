@@ -5,7 +5,7 @@ export const useCityStore = defineStore('city', () => {
   const cities = ref([]);
 
   const getCities = async () => {
-    const response = await axiosInst.get('/admin/cities');
+    const response = await axiosInst.get('/cities');
     cities.value = response.data.map(city => {
       return {
         title: city.name,

@@ -8,9 +8,10 @@
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import {useAuthStore} from "@/stores/auth.js";
 import Home from "@/pages/Home.vue";
-import Login from "@/pages/login.vue";
+import Login from "@/pages/Login.vue";
 import Sectors from "@/pages/admin/Sectors.vue";
 import Players from "@/pages/admin/Players.vue";
+import Register from "@/pages/Register.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +25,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: Register,
     },
     {
       path: '/admin/clients',
@@ -58,7 +64,7 @@ router.beforeEach((to, from, next) => {
   if (authStore.getAuthToken() && to.name === 'login') {
     next({ name: 'home' });
   }
-  if (!authStore.getAuthToken() && to.name !== 'login') {
+  if (!authStore.getAuthToken() && to.name !== 'login' && to.name !== 'register') {
     next({ name: 'login' });
   } else {
     next();

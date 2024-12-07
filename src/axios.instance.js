@@ -4,7 +4,7 @@ import {useAuthStore} from "@/stores/auth.js";
 const axiosInst = axios.create({
   baseURL: 'http://127.0.0.1:8000/api',
   headers: {
-    Accept: 'application/json',
+    Accept: 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   },
   withCredentials: false,
 })

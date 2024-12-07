@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import axiosInst from "@/axios.instance.js";
 import {useRouter} from "vue-router";
 export const useAuthStore = defineStore('auth', () =>{
+  const authError = ref('');
   const router = useRouter();
   const getAuthToken = () => {
     return localStorage.getItem('access_token') || false;
@@ -18,10 +19,26 @@ export const useAuthStore = defineStore('auth', () =>{
       localStorage.setItem('access_token', response.data.token);
       window.location.reload();
     }
+    if (response.data.error) {
+      authError.value = response.data.error;
+    }
+  }
+
+  const register = async (request) => {
+    const response = await axiosInst.post('/register', request);
+    if (response.data.token) {
+      localStorage.setItem('access_token', response.data.token);
+      await router.push('/');
+    }
+    if (response.data.error) {
+      authError.value = response.data.error;
+    }
   }
 
   return {
     getAuthToken,
-    login
+    login,
+    register,
+    authError,
   };
 })

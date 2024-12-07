@@ -1,8 +1,9 @@
 <script setup>
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 </script>
 
@@ -19,11 +20,20 @@ const authStore = useAuthStore();
         v-slot:append
       >
         <v-btn
+          v-if="!route.path.includes('/admin')"
           prepend-icon="mdi-account"
           variant="outlined"
           @click="router.push('/admin/clients')"
         >
           Админ панель
+        </v-btn>
+
+        <v-btn
+          v-else
+          variant="outlined"
+          @click="router.push('/')"
+        >
+          На главную
         </v-btn>
       </template>
     </v-app-bar>

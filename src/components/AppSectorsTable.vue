@@ -2,8 +2,8 @@
 import {ref, reactive, computed, watch, onMounted} from 'vue'
 import {usePlayersStore} from "@/stores/players.js";
 import {useCityStore} from "@/stores/city.js";
-const playersStore = usePlayersStore();
-const citiesStore = useCityStore();
+import {useSectorsStore} from "@/stores/sectors.js";
+const sectorsStore = useSectorsStore();
 
 const dialog = ref(false)
 
@@ -18,32 +18,18 @@ const editedIndex = ref(-1)
 
 const editedItem = reactive({
   id: '',
-  name: '',
-  ticket_code: '',
-  city: null,
+  color: '',
+  products_count: '',
 })
 
 const newItem = reactive({
-  name: '',
-  ticket_code: '',
-  city: null,
+  id: '',
+  color: '',
+  products_count: '',
 });
 
 const formTitle = computed(() => {
-  return editedIndex.value === -1 ? 'Добавить' : 'Редактировать'
-})
-
-const itemsTransform = computed(() => {
-  return props.items?.map((item) => {
-    return {
-      id: item.id,
-      name: item.name,
-      ticket_code: item.ticket_code,
-      city: item.city.name,
-      group_id: item.group_id,
-      product_name: item.product_name
-    }
-  })
+  return editedIndex.value === -1 ? 'Добавьте сектор' : 'Изменить цвет сектора'
 })
 
 watch(dialog, (val) => {
@@ -64,19 +50,19 @@ function close() {
 
 const save = async () => {
   if (editedIndex.value === -1) {
-    await playersStore.addPlayer(newItem.name, newItem.ticket_code, newItem.city);
+    await sectorsStore.addSector(newItem.color);
   } else {
-    await playersStore.editPlayer(editedItem.id, editedItem.name, editedItem.ticket_code, editedItem.city.id);
+    await sectorsStore.editSector(editedItem.id, editedItem.color);
   }
   close();
-  await playersStore.getPlayers();
+  await sectorsStore.getSectors();
 }
 </script>
 
 <template>
   <v-data-table
     :headers="headers"
-    :items="itemsTransform"
+    :items="items"
     :sort-by="[{ key: 'calories', order: 'asc' }]"
     :items-per-page="itemsPerPage"
   >
@@ -101,9 +87,10 @@ const save = async () => {
         >
           Скачать Excel
         </v-btn>
+
         <v-dialog
           v-model="dialog"
-          max-width="500px"
+          max-width="380px"
         >
           <template v-slot:activator="{ props }">
             <v-btn
@@ -124,49 +111,19 @@ const save = async () => {
             <v-card-text>
 
               <v-container v-if="editedIndex !== -1">
-
-                <v-text-field
-                  v-model="editedItem.name"
-                  label="Имя"
-                  variant="outlined"
-                ></v-text-field>
-
-                <v-text-field
-                  v-model="editedItem.ticket_code"
-                  label="Билет"
-                  variant="outlined"
-                ></v-text-field>
-                <v-autocomplete
-                  class="wheel-players"
-                  v-model="editedItem.city.id"
-                  label="Город"
-                  :items="citiesStore.cities"
-                  variant="outlined"
-                  prepend-inner-icon="mdi-magnify"
-                >
-                </v-autocomplete>
+                <v-color-picker
+                  v-model="editedItem.color"
+                  class="w-100"
+                  elevation="10"
+                />
               </v-container>
 
               <v-container v-else>
-                <v-text-field
-                  v-model="newItem.name"
-                  label="Имя"
-                  variant="outlined"
-                ></v-text-field>
-                <v-text-field
-                  v-model="newItem.ticket_code"
-                  label="Билет"
-                  variant="outlined"
-                ></v-text-field>
-                <v-autocomplete
-                  class="wheel-players"
-                  v-model="newItem.city"
-                  label="Город"
-                  :items="citiesStore.cities"
-                  variant="outlined"
-                  prepend-inner-icon="mdi-magnify"
-                >
-                </v-autocomplete>
+                <v-color-picker
+                  v-model="newItem.color"
+                  class="w-100"
+                  elevation="10"
+                />
               </v-container>
 
             </v-card-text>
@@ -202,7 +159,7 @@ const save = async () => {
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-card-title v-if="props.items.length === 0">Список участников пуст</v-card-title>
+      <v-card-title v-if="props.items.length === 0">Список секторов пуст</v-card-title>
       <v-progress-circular v-else class="my-10" indeterminate size="100" width="10" />
     </template>
   </v-data-table>

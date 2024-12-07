@@ -42,7 +42,19 @@ export const usePlayersStore = defineStore('players', () =>{
 
   const downloadExcelFile = async () => {
     isLoading.value = true;
-    await axiosInst.get(`/admin/clients/export`);
+    const response = await axiosInst.get(`/admin/clients/export`, {responseType: 'blob'});
+    const blob = new Blob([response.data], { type: response.data.type });
+    const url = window.URL.createObjectURL(blob);
+    let fileName = 'file';
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName; // Устанавливаем имя файла
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
     isLoading.value = false;
   }
 
