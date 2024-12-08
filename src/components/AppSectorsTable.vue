@@ -149,6 +149,14 @@ const save = async () => {
         </v-dialog>
       </v-toolbar>
     </template>
+    <template v-slot:item.id="{item}">
+      <RouterLink
+        :to="`/admin/sectors/${item.id}`"
+        class="text-primary"
+      >
+        {{item.id}}
+      </RouterLink>
+    </template>
     <template v-slot:item.actions="{ item }">
       <v-icon
         class="me-2"
@@ -159,7 +167,7 @@ const save = async () => {
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-card-title v-if="props.items.length === 0">Список секторов пуст</v-card-title>
+      <v-card-title v-if="!sectorsStore.isLoading">Список секторов пуст</v-card-title>
       <v-progress-circular v-else class="my-10" indeterminate size="100" width="10" />
     </template>
   </v-data-table>

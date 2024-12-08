@@ -12,6 +12,7 @@ import Login from "@/pages/Login.vue";
 import Sectors from "@/pages/admin/Sectors.vue";
 import Players from "@/pages/admin/Players.vue";
 import Register from "@/pages/Register.vue";
+import SectorId from "@/pages/admin/SectorId.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +41,11 @@ const router = createRouter({
       path: '/admin/sectors',
       name: 'sectors',
       component: Sectors,
+    },
+    {
+      path: '/admin/sectors/:id',
+      name: 'sectorItem',
+      component: SectorId,
     },
   ],
 })

@@ -5,21 +5,19 @@ import {usePlayersStore} from "@/stores/players.js";
 import {ref} from "vue";
 import {useCityStore} from "@/stores/city.js";
 const playersStore = usePlayersStore();
-const citiesStore = useCityStore();
 
 const headers = ref([
   { title: 'ID', align: 'start', key: 'id' },
-  { title: 'Имя', key: 'name', align: 'end' },
-  { title: 'Билет №', key: 'ticket_code', align: 'end' },
-  { title: 'Город', key: 'city', align: 'end' },
-  { title: 'Сектор', key: 'group_id', align: 'end' },
-  { title: 'Приз', key: 'product_name', align: 'end' },
+  { title: 'Имя', key: 'name', align: 'start' },
+  { title: 'Билет №', key: 'ticket_code', align: 'start' },
+  { title: 'Город', key: 'city', align: 'start' },
+  { title: 'Сектор', key: 'group_id', align: 'start' },
+  { title: 'Приз', key: 'product_name', align: 'start' },
   { title: 'Действия', key: 'actions', align: 'end', sortable: false },
 ])
 
 onMounted(() => {
   playersStore.getPlayers();
-  citiesStore.getCities();
 })
 </script>
 

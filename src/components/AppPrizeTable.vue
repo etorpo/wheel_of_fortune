@@ -2,9 +2,12 @@
 import {ref, reactive, computed, watch, onMounted} from 'vue'
 import {usePlayersStore} from "@/stores/players.js";
 import {useCityStore} from "@/stores/city.js";
-const playersStore = usePlayersStore();
-const citiesStore = useCityStore();
-
+import {useSectorsStore} from "@/stores/sectors.js";
+import {usePrizesStore} from "@/stores/prizes.js";
+import {useRoute} from "vue-router";
+const sectorsStore = useSectorsStore();
+const prizeStore = usePrizesStore();
+const route = useRoute();
 const dialog = ref(false)
 
 const props = defineProps({
@@ -17,33 +20,24 @@ const props = defineProps({
 const editedIndex = ref(-1)
 
 const editedItem = reactive({
-  id: '',
+  id: null,
   name: '',
-  ticket_code: '',
-  city: null,
+  code: '',
+  count: null,
+  image: null,
+  sectorsId: null,
 })
 
 const newItem = reactive({
   name: '',
-  ticket_code: '',
-  city: null,
+  code: '',
+  count: null,
+  image: null,
+  sectorsId: null,
 });
 
 const formTitle = computed(() => {
-  return editedIndex.value === -1 ? 'Добавить' : 'Редактировать'
-})
-
-const itemsTransform = computed(() => {
-  return props.items?.map((item) => {
-    return {
-      id: item.id,
-      name: item.name,
-      ticket_code: item.ticket_code,
-      city: item.city.name,
-      group_id: item.group_id,
-      product_name: item.product_name
-    }
-  })
+  return editedIndex.value === -1 ? 'Добавить приз' : 'Редактировать'
 })
 
 watch(dialog, (val) => {
@@ -62,21 +56,41 @@ function close() {
   editedIndex.value = -1;
 }
 
+const formatSectors = computed(() => {
+  return sectorsStore.sectors.map(sector => {
+    return {
+      title: sector.id,
+      value: sector.id
+    }
+  })
+})
+
 const save = async () => {
   if (editedIndex.value === -1) {
-    await playersStore.addPlayer(newItem.name, newItem.ticket_code, newItem.city);
+    const formData = new FormData();
+    formData.append('name', newItem.name);
+    formData.append('code', newItem.code);
+    formData.append('count', newItem.count);
+    formData.append('image', newItem.image);
+    formData.append('groups', newItem.sectorsId);
+    await prizeStore.addPrize(formData);
   } else {
-    await playersStore.editPlayer(editedItem.id, editedItem.name, editedItem.ticket_code, editedItem.city.id);
+    await sectorsStore.editSector(editedItem.id, editedItem.color);
   }
   close();
-  await playersStore.getPlayers();
+  await sectorsStore.getSectors();
+}
+
+const deleteItem = async (id) => {
+  await prizeStore.deletePrize(id);
+  await prizeStore.getPrizes(route.params.id);
 }
 </script>
 
 <template>
   <v-data-table
     :headers="headers"
-    :items="itemsTransform"
+    :items="items"
     :sort-by="[{ key: 'calories', order: 'asc' }]"
     :items-per-page="itemsPerPage"
   >
@@ -84,6 +98,11 @@ const save = async () => {
       <v-toolbar
         flat
       >
+        <RouterLink class="text-white pl-2" to="/admin/sectors">
+          <v-btn
+            icon="mdi-arrow-left"
+          />
+        </RouterLink>
         <v-toolbar-title>{{title}}</v-toolbar-title>
         <v-divider
           class="mx-4"
@@ -91,16 +110,7 @@ const save = async () => {
           vertical
         ></v-divider>
         <v-spacer></v-spacer>
-        <v-btn
-          @click="playersStore.downloadExcelFile()"
-          class="mb-2"
-          color="white"
-          variant="outlined"
-          dark
-          v-bind="props"
-        >
-          Скачать Excel
-        </v-btn>
+
         <v-dialog
           v-model="dialog"
           max-width="500px"
@@ -117,6 +127,7 @@ const save = async () => {
             </v-btn>
           </template>
           <v-card>
+
             <v-card-title>
               <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
@@ -127,46 +138,80 @@ const save = async () => {
 
                 <v-text-field
                   v-model="editedItem.name"
-                  label="Имя"
+                  label="Название"
                   variant="outlined"
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="editedItem.ticket_code"
-                  label="Билет"
+                  v-model="editedItem.code"
+                  label="Код приза"
                   variant="outlined"
                 ></v-text-field>
+
+                <v-text-field
+                  v-model="editedItem.count"
+                  label="Количество"
+                  variant="outlined"
+                ></v-text-field>
+
                 <v-autocomplete
                   class="wheel-players"
-                  v-model="editedItem.city.id"
-                  label="Город"
-                  :items="citiesStore.cities"
+                  chips
+                  multiple
+                  v-model="editedItem.sectorsId"
+                  label="Выбор номера сектора"
+                  :items="formatSectors"
                   variant="outlined"
-                  prepend-inner-icon="mdi-magnify"
                 >
                 </v-autocomplete>
+
+                <v-file-input
+                  v-model="editedItem.image"
+                  label="Картинка приза"
+                  variant="outlined"
+                  max-width="200"
+                />
+
               </v-container>
 
               <v-container v-else>
+
                 <v-text-field
                   v-model="newItem.name"
-                  label="Имя"
+                  label="Название"
                   variant="outlined"
                 ></v-text-field>
+
                 <v-text-field
-                  v-model="newItem.ticket_code"
-                  label="Билет"
+                  v-model="newItem.code"
+                  label="Код приза"
                   variant="outlined"
                 ></v-text-field>
+
+                <v-text-field
+                  v-model="newItem.count"
+                  label="Количество"
+                  variant="outlined"
+                ></v-text-field>
+
                 <v-autocomplete
                   class="wheel-players"
-                  v-model="newItem.city"
-                  label="Город"
-                  :items="citiesStore.cities"
+                  chips
+                  multiple
+                  v-model="newItem.sectorsId"
+                  label="Выбор номера сектора"
+                  :items="formatSectors"
                   variant="outlined"
-                  prepend-inner-icon="mdi-magnify"
                 >
                 </v-autocomplete>
+
+                <v-file-input
+                  v-model="newItem.image"
+                  label="Картинка приза"
+                  variant="outlined"
+                  max-width="200"
+                />
+
               </v-container>
 
             </v-card-text>
@@ -192,6 +237,9 @@ const save = async () => {
         </v-dialog>
       </v-toolbar>
     </template>
+    <template v-slot:item.image="{item}">
+      <img class="table-image" :src="item.image" alt="">
+    </template>
     <template v-slot:item.actions="{ item }">
       <v-icon
         class="me-2"
@@ -200,14 +248,24 @@ const save = async () => {
       >
         mdi-pencil
       </v-icon>
+      <v-icon
+        class="me-2"
+        size="small"
+        @click="deleteItem(item.id)"
+      >
+        mdi-delete
+      </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-card-title v-if="!playersStore.isLoading">Список участников пуст</v-card-title>
+      <v-card-title v-if="!sectorsStore.isLoading">Список секторов пуст</v-card-title>
       <v-progress-circular v-else class="my-10" indeterminate size="100" width="10" />
     </template>
   </v-data-table>
 </template>
 
 <style scoped lang="scss">
-
+.table-image {
+  padding: 12px 0px;
+  max-width: 200px;
+}
 </style>

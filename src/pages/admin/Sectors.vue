@@ -5,18 +5,16 @@ import {ref} from "vue";
 import {useCityStore} from "@/stores/city.js";
 import {useSectorsStore} from "@/stores/sectors.js";
 const sectorsStore = useSectorsStore();
-const citiesStore = useCityStore();
 
 const headers = ref([
   { title: 'ID', align: 'start', key: 'id' },
-  { title: 'Цвет', key: 'color', align: 'end' },
-  { title: 'Кол-во призов', key: 'products_count', align: 'end' },
+  { title: 'Цвет', key: 'color', align: 'start' },
+  { title: 'Кол-во призов', key: 'products_count', align: 'start' },
   { title: 'Действия', key: 'actions', align: 'end', sortable: false },
 ])
 
 onMounted(() => {
   sectorsStore.getSectors();
-  citiesStore.getCities();
 })
 </script>
 
