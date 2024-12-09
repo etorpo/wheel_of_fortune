@@ -24,6 +24,11 @@ export const useAuthStore = defineStore('auth', () =>{
     }
   }
 
+  const logout = () => {
+    localStorage.removeItem('access_token');
+    window.location.reload();
+  }
+
   const register = async (request) => {
     const response = await axiosInst.post('/register', request);
     if (response.data.token) {
@@ -40,5 +45,6 @@ export const useAuthStore = defineStore('auth', () =>{
     login,
     register,
     authError,
+    logout
   };
 })

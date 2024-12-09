@@ -16,7 +16,7 @@ const headers = ref([
   { title: 'Название', key: 'name', align: 'start' },
   { title: 'Картинка', key: 'image', align: 'start' },
   { title: 'Количество', key: 'count', align: 'start', sortable: false },
-  { title: 'Номер сектора', key: 'group_id', align: 'start', sortable: false },
+  { title: 'Номер сектора', key: 'sectorsIds', align: 'start', sortable: false },
   { title: 'Действия', key: 'actions', align: 'end', sortable: false },
 ]);
 

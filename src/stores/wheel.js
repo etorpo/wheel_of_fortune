@@ -4,6 +4,7 @@ import {useRouter} from "vue-router";
 export const useWheelStore = defineStore('wheel', () =>{
   const giftSectors = ref([]);
   const players = ref([]);
+  const winGift = ref({});
   const winner = ref({});
   const isLoading = ref(false);
   const selectedPlayer = ref(null);
@@ -14,7 +15,7 @@ export const useWheelStore = defineStore('wheel', () =>{
     giftSectors.value = response.data.sectors.map(sector => {
       return {
         id: sector.id,
-        value: sector.id,
+        value: ' ',
         bgColor: sector.color
       }
     });
@@ -39,6 +40,7 @@ export const useWheelStore = defineStore('wheel', () =>{
     }
     const response = await axiosInst.post('/site/spin', request);
     winner.value = response.data.sector.id;
+    winGift.value = response.data.product;
   }
 
   return {
@@ -49,6 +51,7 @@ export const useWheelStore = defineStore('wheel', () =>{
     isLoading,
     getPlayers,
     selectedPlayer,
-    spin
+    spin,
+    winGift
   };
 })

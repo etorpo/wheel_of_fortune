@@ -1,18 +1,26 @@
 <script setup>
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.js";
+import {useDrawerStore} from "@/stores/drawer.js";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const drawerStore = useDrawerStore();
 </script>
 
 <template>
   <header>
     <v-app-bar :elevation="2" class="px-4">
 
-      <RouterLink class="text-decoration-none text-white" to="/">
-        <v-app-bar-title>Крути барабан</v-app-bar-title>
+      <v-app-bar-nav-icon
+        v-if="route.path.includes('/admin')"
+        variant="text"
+        @click.stop="drawerStore.isDrawerOpen = !drawerStore.isDrawerOpen"
+      ></v-app-bar-nav-icon>
+
+      <RouterLink class="text-decoration-none text-white ml-4" to="/">
+        <v-app-bar-title>Колесо фортуны</v-app-bar-title>
       </RouterLink>
 
       <template

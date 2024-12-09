@@ -8,7 +8,16 @@ export const usePrizesStore = defineStore('prizes', () =>{
   const getPrizes = async (sectorId) => {
     isLoading.value = true;
     const response = await axiosInst.get(`/admin/groups/${sectorId}/products`);
-    prizes.value = response.data;
+    prizes.value = response.data.map(prize => {
+      return {
+        id: prize.id,
+        name: prize.name,
+        code: prize.code,
+        count: prize.count,
+        image: prize.image,
+        sectorsIds: prize.groups.map(group => group.id)
+      }
+    });
     isLoading.value = false;
   };
 
@@ -23,18 +32,19 @@ export const usePrizesStore = defineStore('prizes', () =>{
     await axiosInst.delete(`/admin/products/${prizeId}`);
     isLoading.value = false;
   };
-  //
-  // const editSector = async (sectorId, color) => {
-  //   isLoading.value = true;
-  //   await axiosInst.put(`/admin/groups/${sectorId}`, {color: color});
-  //   isLoading.value = false;
-  // };
+
+  const editPrize = async (id, request) => {
+    isLoading.value = true;
+    await axiosInst.post(`/admin/products/${id}`, request);
+    isLoading.value = false;
+  };
 
   return {
     isLoading,
     prizes,
     getPrizes,
     addPrize,
-    deletePrize
+    deletePrize,
+    editPrize
   };
 })

@@ -1,14 +1,13 @@
 <script setup>
-import {ref, reactive, computed, watch, onMounted} from 'vue'
-import {usePlayersStore} from "@/stores/players.js";
-import {useCityStore} from "@/stores/city.js";
+import {ref, reactive, computed, watch} from 'vue'
 import {useSectorsStore} from "@/stores/sectors.js";
 import {usePrizesStore} from "@/stores/prizes.js";
 import {useRoute} from "vue-router";
+
 const sectorsStore = useSectorsStore();
 const prizeStore = usePrizesStore();
 const route = useRoute();
-const dialog = ref(false)
+const dialog = ref(false);
 
 const props = defineProps({
   title: String,
@@ -25,15 +24,16 @@ const editedItem = reactive({
   code: '',
   count: null,
   image: null,
-  sectorsId: null,
+  sectorsIds: null,
 })
 
 const newItem = reactive({
+  id: null,
   name: '',
   code: '',
   count: null,
   image: null,
-  sectorsId: null,
+  sectorsIds: null,
 });
 
 const formTitle = computed(() => {
@@ -72,13 +72,19 @@ const save = async () => {
     formData.append('code', newItem.code);
     formData.append('count', newItem.count);
     formData.append('image', newItem.image);
-    formData.append('groups', newItem.sectorsId);
+    newItem.sectorsId.forEach((sectorId) => formData.append('groups[]', sectorId));
     await prizeStore.addPrize(formData);
   } else {
-    await sectorsStore.editSector(editedItem.id, editedItem.color);
+    const formData = new FormData();
+    formData.append('name', editedItem.name);
+    formData.append('code', editedItem.code);
+    formData.append('count', editedItem.count);
+    formData.append('image', editedItem.image);
+    editedItem.sectorsId.forEach((sectorId) => formData.append('groups[]', sectorId));
+    await prizeStore.editPrize(editedItem.id, formData);
   }
   close();
-  await sectorsStore.getSectors();
+  await prizeStore.getPrizes(route.params.id);
 }
 
 const deleteItem = async (id) => {
@@ -158,7 +164,7 @@ const deleteItem = async (id) => {
                   class="wheel-players"
                   chips
                   multiple
-                  v-model="editedItem.sectorsId"
+                  v-model="editedItem.sectorsIds"
                   label="Выбор номера сектора"
                   :items="formatSectors"
                   variant="outlined"
@@ -198,7 +204,7 @@ const deleteItem = async (id) => {
                   class="wheel-players"
                   chips
                   multiple
-                  v-model="newItem.sectorsId"
+                  v-model="newItem.sectorsIds"
                   label="Выбор номера сектора"
                   :items="formatSectors"
                   variant="outlined"
@@ -238,8 +244,22 @@ const deleteItem = async (id) => {
       </v-toolbar>
     </template>
     <template v-slot:item.image="{item}">
-      <img class="table-image" :src="item.image" alt="">
+      <img class="table-image" :src="'http://127.0.0.1:8000/'+item.image" alt="">
     </template>
+
+    <template v-slot:item.sectorsIds="{item}">
+      <div class="chips">
+        <v-chip
+          v-for="chip in item.sectorsIds"
+          :key="item"
+          density="compact"
+          class="text-caption"
+        >
+          {{ chip }}
+        </v-chip>
+      </div>
+    </template>
+
     <template v-slot:item.actions="{ item }">
       <v-icon
         class="me-2"
@@ -257,7 +277,7 @@ const deleteItem = async (id) => {
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-card-title v-if="!sectorsStore.isLoading">Список секторов пуст</v-card-title>
+      <v-card-title v-if="!sectorsStore.isLoading">Нет призов</v-card-title>
       <v-progress-circular v-else class="my-10" indeterminate size="100" width="10" />
     </template>
   </v-data-table>
@@ -267,5 +287,12 @@ const deleteItem = async (id) => {
 .table-image {
   padding: 12px 0px;
   max-width: 200px;
+}
+
+.chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px;
+  max-width: 120px;
 }
 </style>

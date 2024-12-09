@@ -70,17 +70,21 @@ onMounted(async () => {
         </v-btn>
       </div>
     </div>
+
     <v-dialog
       v-model="winDialog"
       opacity="0.12"
       width="auto"
     >
       <v-card
-        max-width="400"
+        width="400"
         prepend-icon="mdi-candy-outline"
-        text="Поздравляем с победой!"
+        :text="'Вы выйграли подарок - ' + wheelStore.winGift?.name"
         title="Вы выйграли!!!"
       >
+        <v-card-item>
+          <v-img :src="'http://127.0.0.1:8000/' + wheelStore.winGift?.image" />
+        </v-card-item>
         <template v-slot:actions>
           <v-btn
             class="ms-auto"
@@ -94,6 +98,7 @@ onMounted(async () => {
         </template>
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 
@@ -129,6 +134,16 @@ onMounted(async () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+@media (max-width: 600px) {
+  .wheel {
+    width: 410px !important;
+  }
+
+  .spin-btn {
+    max-width: 400px;
+  }
 }
 </style>
 

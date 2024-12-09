@@ -3,7 +3,7 @@ import AppTable from "@/components/AppTable.vue";
 import AppDrawer from "@/components/AppDrawer.vue";
 import {usePlayersStore} from "@/stores/players.js";
 import {ref} from "vue";
-import {useCityStore} from "@/stores/city.js";
+
 const playersStore = usePlayersStore();
 
 const headers = ref([
