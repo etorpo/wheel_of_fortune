@@ -64,7 +64,7 @@ const save = async () => {
     :headers="headers"
     :items="items"
     :sort-by="[{ key: 'calories', order: 'asc' }]"
-    :items-per-page="itemsPerPage"
+    :items-per-page="10"
   >
     <template v-slot:top>
       <v-toolbar
@@ -78,7 +78,7 @@ const save = async () => {
         ></v-divider>
         <v-spacer></v-spacer>
         <v-btn
-          @click="playersStore.downloadExcelFile()"
+          @click="sectorsStore.downloadExcelFile()"
           class="mb-2"
           color="white"
           variant="outlined"

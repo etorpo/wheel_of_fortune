@@ -24,11 +24,30 @@ export const useSectorsStore = defineStore('sectors', () =>{
     isLoading.value = false;
   };
 
+  const downloadExcelFile = async () => {
+    isLoading.value = true;
+    const response = await axiosInst.get(`/admin/products/export`, {responseType: 'blob'});
+    const blob = new Blob([response.data], { type: response.data.type });
+    const url = window.URL.createObjectURL(blob);
+    let fileName = 'Отчет Excel';
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName; // Устанавливаем имя файла
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    isLoading.value = false;
+  };
+
   return {
     isLoading,
     sectors,
     getSectors,
     editSector,
-    addSector
+    addSector,
+    downloadExcelFile
   };
 })

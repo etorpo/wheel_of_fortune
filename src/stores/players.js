@@ -56,7 +56,7 @@ export const usePlayersStore = defineStore('players', () =>{
     link.remove();
     window.URL.revokeObjectURL(url);
     isLoading.value = false;
-  }
+  };
 
   return {
     isLoading,

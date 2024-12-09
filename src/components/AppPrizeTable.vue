@@ -98,7 +98,7 @@ const deleteItem = async (id) => {
     :headers="headers"
     :items="items"
     :sort-by="[{ key: 'calories', order: 'asc' }]"
-    :items-per-page="itemsPerPage"
+    :items-per-page="10"
   >
     <template v-slot:top>
       <v-toolbar

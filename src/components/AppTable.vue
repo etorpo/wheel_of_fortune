@@ -78,7 +78,7 @@ const save = async () => {
     :headers="headers"
     :items="itemsTransform"
     :sort-by="[{ key: 'calories', order: 'asc' }]"
-    :items-per-page="itemsPerPage"
+    :items-per-page="10"
   >
     <template v-slot:top>
       <v-toolbar
