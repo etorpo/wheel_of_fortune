@@ -94,9 +94,9 @@ const required = (v) => {
         @click:append-inner="visiblePassword = !visiblePassword"
       ></v-text-field>
 
-      <RouterLink v-if="!register" class="form-link" to="/register">
-        Зарегистрироваться
-      </RouterLink>
+<!--      <RouterLink v-if="!register" class="form-link" to="/register">-->
+<!--        Зарегистрироваться-->
+<!--      </RouterLink>-->
 
       <v-btn
         v-if="register"

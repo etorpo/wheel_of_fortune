@@ -72,7 +72,7 @@ const save = async () => {
     formData.append('code', newItem.code);
     formData.append('count', newItem.count);
     formData.append('image', newItem.image);
-    newItem.sectorsId.forEach((sectorId) => formData.append('groups[]', sectorId));
+    newItem.sectorsIds.forEach((sectorId) => formData.append('groups[]', sectorId));
     await prizeStore.addPrize(formData);
   } else {
     const formData = new FormData();
@@ -80,7 +80,7 @@ const save = async () => {
     formData.append('code', editedItem.code);
     formData.append('count', editedItem.count);
     formData.append('image', editedItem.image);
-    editedItem.sectorsId.forEach((sectorId) => formData.append('groups[]', sectorId));
+    editedItem.sectorsIds.forEach((sectorId) => formData.append('groups[]', sectorId));
     await prizeStore.editPrize(editedItem.id, formData);
   }
   close();
@@ -109,7 +109,7 @@ const deleteItem = async (id) => {
             icon="mdi-arrow-left"
           />
         </RouterLink>
-        <v-toolbar-title>{{title}}</v-toolbar-title>
+        <v-toolbar-title>Сектор {{route.params.id}} | {{title}}</v-toolbar-title>
         <v-divider
           class="mx-4"
           inset
