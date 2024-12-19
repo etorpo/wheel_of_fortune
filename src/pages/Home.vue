@@ -83,7 +83,7 @@ onMounted(async () => {
         title="Вы выйграли!!!"
       >
         <v-card-item>
-          <v-img :src="'http://127.0.0.1:8000/' + wheelStore.winGift?.image" />
+          <v-img :src="'https://backfortuna.etfp.ru/' + wheelStore.winGift?.image" />
         </v-card-item>
         <template v-slot:actions>
           <v-btn

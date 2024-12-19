@@ -244,7 +244,7 @@ const deleteItem = async (id) => {
       </v-toolbar>
     </template>
     <template v-slot:item.image="{item}">
-      <img class="table-image" :src="'http://127.0.0.1:8000/'+item.image" alt="">
+      <img class="table-image" :src="'https://backfortuna.etfp.ru/'+item.image" alt="">
     </template>
 
     <template v-slot:item.sectorsIds="{item}">

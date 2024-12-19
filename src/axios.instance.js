@@ -2,7 +2,7 @@ import router from '@/router/index.js'
 import axios from 'axios'
 import {useAuthStore} from "@/stores/auth.js";
 const axiosInst = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'https://backfortuna.etfp.ru/api',
   headers: {
     Accept: 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   },
